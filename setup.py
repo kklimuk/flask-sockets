@@ -11,10 +11,10 @@ from setuptools import setup
 
 setup(
     name='Flask-Sockets',
-    version='0.1',
-    url='https://github.com/kennethreitz/flask-sockets',
+    version='0.11',
+    url='git+git://github.comk/klimuk/flask-sockets.git',
     license='See License',
-    author='Kenneth Reitz',
+    author='Kenneth Reitz, Kirill Klimuk',
     author_email='_@kennethreitz.com',
     description='Elegant WebSockets for your Flask apps.',
     long_description=__doc__,
@@ -24,6 +24,7 @@ setup(
     platforms='any',
     install_requires=[
         'Flask',
+        'werkzeug',
         'gevent',
         'gevent-websocket'
     ],
