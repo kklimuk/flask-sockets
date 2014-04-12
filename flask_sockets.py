@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map, Rule, NotFound
+from werkzeug.exceptions import HTTPException
 
 def log_request(self):
     log = self.server.log
