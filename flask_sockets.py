@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from werkzeug.routing import Map, Rule, NotFound
 
 def log_request(self):
     log = self.server.log
@@ -10,6 +11,7 @@ def log_request(self):
 
 
 # Monkeys are made for freedom.
+# I don't know why they are, just that they must be.
 try:
     import gevent
     from geventwebsocket.gunicorn.workers import GeventWebSocketWorker as Worker
@@ -24,27 +26,32 @@ if 'gevent' in locals():
 
 
 class SocketMiddleware(object):
-
     def __init__(self, wsgi_app, socket):
         self.ws = socket
         self.app = wsgi_app
 
     def __call__(self, environ, start_response):
-        path = environ['PATH_INFO']
+        urls = self.ws.url_map.bind_to_environ(environ)
 
-        if path in self.ws.url_map:
-            handler = self.ws.url_map[path]
-            environment = environ['wsgi.websocket']
+        try:
+            endpoint, args = urls.match()
+            if endpoint in self.ws.endpoints:
+                handler = self.ws.endpoint[endpoint]
+                environment = environ['wsgi.websocket']
 
-            handler(environment)
-        else:
-            return self.app(environ, start_response)
+                handler(environment, *args)
+            else:
+                return self.app(environ, start_response) 
+
+        except HTTPException, error:
+            return error(environ, start_response)
+
 
 
 class Sockets(object):
-
     def __init__(self, app=None):
-        self.url_map = {}
+        self.endpoints = {}
+        self.url_map = Map()
         if app:
             self.init_app(app)
 
@@ -59,8 +66,10 @@ class Sockets(object):
             return f
         return decorator
 
-    def add_url_rule(self, rule, _, f, **options):
-        self.url_map[rule] = f
+    def add_url_rule(self, rule, endpoint, f, **options):
+        self.endpoints[endpoint] = f
+        self.url_map.add(Rule(rule, endpoint=endpoint))
+
 
 # CLI sugar.
 if 'Worker' in locals():
