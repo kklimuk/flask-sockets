@@ -36,16 +36,13 @@ class SocketMiddleware(object):
 
         try:
             endpoint, args = urls.match()
-            if endpoint in self.ws.endpoints:
-                handler = self.ws.endpoint[endpoint]
-                environment = environ['wsgi.websocket']
+            handler = self.ws.endpoints[endpoint]
+            environment = environ['wsgi.websocket']
 
-                handler(environment, *args)
-            else:
-                return self.app(environ, start_response) 
+            handler(environment, **args)
 
         except HTTPException, error:
-            return error(environ, start_response)
+            return self.app(environ, start_response)
 
 
 
