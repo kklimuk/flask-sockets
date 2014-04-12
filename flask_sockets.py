@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from werkzeug.exceptions import HTTPException
 from werkzeug.routing import Map, Rule, NotFound
 
 def log_request(self):
@@ -59,7 +60,6 @@ class Sockets(object):
         app.wsgi_app = SocketMiddleware(app.wsgi_app, self)
 
     def route(self, rule, **options):
-
         def decorator(f):
             endpoint = options.pop('endpoint', None)
             self.add_url_rule(rule, endpoint, f, **options)
