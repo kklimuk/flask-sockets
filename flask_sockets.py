@@ -64,8 +64,8 @@ class Sockets(object):
         return decorator
 
     def add_url_rule(self, rule, endpoint, f, **options):
-        self.endpoints[endpoint] = f
-        self.url_map.add(Rule(rule, endpoint=endpoint))
+        self.endpoints[endpoint if endpoint else rule] = f
+        self.url_map.add(Rule(rule, endpoint=endpoint if endpoint else rule))
 
 
 # CLI sugar.
